@@ -14,6 +14,8 @@ class PointsController {
     .where('points.city', String(city))
     .where('points.uf', String(uf))
     .select('points.*');
+
+    return response.json(point);
   }
   
   async create(request: Request, response: Response) {
@@ -32,7 +34,7 @@ class PointsController {
     const trx = await knex.transaction();
     
     const point = {
-      image: 'https://images.unsplash.com/photo-1503596476-1c12a8ba09a9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
+      img: 'https://images.unsplash.com/photo-1503596476-1c12a8ba09a9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
       name, 
       email,
       whatsapp,
@@ -42,7 +44,7 @@ class PointsController {
       uf
     };
 
-    const insertedIds = await trx('poins').insert(point);
+    const insertedIds = await trx('points').insert(point);
   
     const point_id = insertedIds[0];
   
