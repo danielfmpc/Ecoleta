@@ -4,18 +4,33 @@ import knex from "../database/connection";
 
 class PointsController {
   async index(request: Request, response: Response) {
-    const { city, uf, item } = request.query;
+    const { city, uf, items } = request.query;
 
-    const parsedItems = String(item).split(',').map(item => Number(item.trim()));
+    const parsedItems = String(items)
+    .split(',')
+    .map(item => Number(item.trim()));
 
-    const point = await knex('points')
+    if(isNaN(Number(parsedItems))){
+      const points = await knex('points')
+      .orWhere('city', String(city))
+      .orWhere('uf', String(uf))
+      .distinct()
+      .select('points.*');  
+
+      return response.json(points);
+    } 
+    
+
+    const points = await knex('points')
     .join('points_items', 'points.id', '=', 'points_items.point_id')
-    .whereIn('points_items.item_id', parsedItems)
-    .where('points.city', String(city))
-    .where('points.uf', String(uf))
+    .orWhereIn('points_items.item_id', parsedItems)
+    .orWhere('city', String(city))
+    .orWhere('uf', String(uf))
+    .distinct()
     .select('points.*');
+    
 
-    return response.json(point);
+    return response.json(points);
   }
   
   async create(request: Request, response: Response) {
@@ -78,6 +93,10 @@ class PointsController {
     .join('points_items', 'items.id', '=', 'points_items.item_id')
     .where('points_items.point_id', id)
     .select('items.title');
+
+    console.log(point);
+    console.log(items);
+
 
     return response.json({point, items});
   }
